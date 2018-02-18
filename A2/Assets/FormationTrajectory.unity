@@ -217,6 +217,9 @@ MonoBehaviour:
   wallHeight: 4
   wallThickness: 0.5
   wallMaterial: {fileID: 2100000, guid: e1f8ae08076686a4980b96cb6c0674c6, type: 2}
+  vehicleBoundingObject: {fileID: 333330243}
+  vehicleObject: {fileID: 100008, guid: f33fcdf90e7034971b3e1a639b7b0355, type: 2}
+  vehicleHeight: 0.3817286
 --- !u!1 &316455805
 GameObject:
   m_ObjectHideFlags: 0
@@ -282,6 +285,34 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &333330243
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 333330244}
+  m_Layer: 0
+  m_Name: VehicleBoundingObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &333330244
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 333330243}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 22.62594, y: -46.88147, z: 68.48833}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &550972382
 GameObject:
   m_ObjectHideFlags: 0

@@ -75,7 +75,6 @@ public class Mother : MonoBehaviour {
     void spawnVehicle(float[] origin, string name)
     {
         Vector3 position = new Vector3(origin[0], vehicleHeight, origin[1]);
-        Debug.Log(position);
         GameObject vehicle = vehicleObject;
         vehicle.name = name;
         vehicle.transform.position = position;
