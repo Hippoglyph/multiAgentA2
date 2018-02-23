@@ -220,6 +220,7 @@ MonoBehaviour:
   vehicleBoundingObject: {fileID: 333330243}
   vehicleObject: {fileID: 100008, guid: f33fcdf90e7034971b3e1a639b7b0355, type: 2}
   vehicleHeight: 0.3817286
+  speed: 5
 --- !u!1 &316455805
 GameObject:
   m_ObjectHideFlags: 0

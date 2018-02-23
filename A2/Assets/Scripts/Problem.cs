@@ -36,7 +36,7 @@ public class Problem {
         trajectory = new List<float[]>();
         List<float> x = new List<float>();
         List<float> y = new List<float>();
-        List<float> theta = new List<float>();
+        theta = new List<float>();
         for (int i = 0; i < json.Length; i++)
         {
             if (json[i].Contains("t") || json[i].Contains("x") || json[i].Contains("y") || json[i].Contains("theta"))
@@ -51,7 +51,7 @@ public class Problem {
                 else
                     type = TypeTraj.t;
 
-                for (int j = i + 1; j < json.Length - 1; j += 4)
+                for (int j = i + 1; j < json.Length - 1; j += 1)
                 {
                     if (json[j].Contains("]"))
                     {

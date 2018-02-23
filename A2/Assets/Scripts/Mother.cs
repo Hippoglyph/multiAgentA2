@@ -17,53 +17,97 @@ public class Mother : MonoBehaviour {
     float boundingMaxX, boundingMaxZ = float.MinValue;
     public float vehicleHeight = 0f;
     public float speed = 5f;
+    int currentPosition = 0;
     VirtualConstruct VC;
-    List<MotionModel> carMotions;
+    List<MotionModel> cars;
+    GameObject leader;
+    float velocityGoal = 0f;
     // Use this for initialization
     void Start () {
         problem = Problem.Import(problemPath, trajPath);
-        carMotions = new List<MotionModel>();
+        cars = new List<MotionModel>();
         spawnObjects();
         VC = new VirtualConstruct(problem.formationPositions, vehicleHeight);
-        
     }
 
     float getDt()
     {
         return Time.deltaTime * speed;
+        //return problem.vehicle_dt * speed;
     }
-	
-	// Update is called once per frame
+
+    // Update is called once per frame
+    bool started = false;
 	void Update () {
-        carMotions[0].moveTowards(Vector3.zero, getDt());
-    }
-
-    void vcTest()
-    {
-        List<Vector3> points = VC.getPoints(new Vector3(27.5f, 0, 30), -Mathf.PI);
-        foreach(Vector3 point in points)
+  
+        if(currentPosition < problem.trajectory.Count)
         {
-            GameObject thing = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            thing.transform.position = point+Vector3.up;
+            moveAll();
+            if (started)
+            {
+                moveConstruct();
+                
+            }
+            else
+                started = checkStartPositions();
         }
-
+        else
+        {
+            Vector3 position = new Vector3(problem.trajectory[problem.trajectory.Count-1][0], vehicleHeight, problem.trajectory[problem.trajectory.Count-1][1]);
+            for (int i = 0; i < cars.Count; i++)
+            {
+                cars[i].moveTowards(VC.getPosition(i, position, problem.theta[problem.trajectory.Count-1]), getDt(), velocityGoal);
+            }
+        }
+        
+        
     }
 
-    void moveToStartPositions()
+    void moveAll()
     {
-
+        Vector3 position = new Vector3(problem.trajectory[currentPosition][0], vehicleHeight, problem.trajectory[currentPosition][1]);
+        for (int i = 0; i<cars.Count;i++)
+        {
+            cars[i].moveTowards(VC.getPosition(i, position, problem.theta[currentPosition]), getDt(), velocityGoal);
+        }
     }
 
+    bool checkStartPositions()
+    {
+        for (int i = 0; i < cars.Count; i++)
+        {
+            if (!cars[i].inFormation)
+                return false;
+        }
+        return true;
+    }
+
+    float currentTime = 0f;
+    void moveConstruct()
+    {
+        currentTime += getDt();
+        if (currentTime >= problem.vehicle_dt)
+        {
+            int timeSpent = (int)(currentTime / problem.vehicle_dt);
+            currentTime = currentTime % (problem.vehicle_dt);
+            currentPosition+=timeSpent;
+            currentPosition = Mathf.Min(currentPosition, problem.trajectory.Count-1);
+            Vector3 oldPos = leader.transform.position;
+            leader.transform.position = new Vector3(problem.trajectory[currentPosition][0], vehicleHeight, problem.trajectory[currentPosition][1]);
+            leader.transform.forward =  new Vector3(Mathf.Cos(problem.theta[currentPosition]), 0, Mathf.Sin(problem.theta[currentPosition]));
+            velocityGoal = (oldPos - leader.transform.position).magnitude/getDt();
+        }
+    }
+  
     void spawnObjects()
     {
         //Spawn bounding wall
         if(problem.boundingPolygon.Count != 0)
             spawnObject(problem.boundingPolygon, "boundingPolygon", boundingObject);
         //Spawn vehicles at start position
-        //for (int i = 0; i<problem.startPositions.Count; i++)
-            carMotions.Add(spawnVehicle(problem.startPositions[0], "vehicle_" + 0));
-
-        spawnVehicle(problem.formationPositions[0], "leaderVehicle");
+        for (int i = 0; i<problem.startPositions.Count; i++)
+            cars.Add(spawnVehicle(problem.startPositions[i], "vehicle_" + i, Mathf.PI));
+        leader = spawnVehicle(problem.trajectory[0], "leaderVehicle", problem.theta[0]).gameObject;
 
     }
 
@@ -99,15 +143,16 @@ public class Mother : MonoBehaviour {
         wall.transform.localScale = new Vector3(wallThickness, wallHeight, width);
     }
 
-    MotionModel spawnVehicle(float[] origin, string name)
+    MotionModel spawnVehicle(float[] origin, string name, float orientation)
     {
+        Vector3 newOrientation = new Vector3(Mathf.Cos(orientation), 0, Mathf.Sin(orientation));
         Vector3 position = new Vector3(origin[0], vehicleHeight, origin[1]);
         GameObject vehicle = Instantiate(vehicleObject, vehicleBoundingObject.transform, true);
         vehicle.name = name;
         vehicle.transform.position = position;
-        vehicle.transform.LookAt(new Vector3((boundingMaxX - boundingMinX) / 2, vehicleHeight, (boundingMaxZ - boundingMinZ) / 2));
+        vehicle.transform.forward = newOrientation;
         MotionModel mm = vehicle.AddComponent<MotionModel>();
-        mm.setParams(problem.vehicle_v_max, problem.vehicle_L, problem.vehicle_phi_max);
+        mm.setParams(problem.vehicle_v_max, problem.vehicle_L, problem.vehicle_phi_max, problem.vehicle_a_max);
         return mm;
     }
 }
