@@ -16,16 +16,43 @@ public class Mother : MonoBehaviour {
     float boundingMinX, boundingMinZ = float.MaxValue;
     float boundingMaxX, boundingMaxZ = float.MinValue;
     public float vehicleHeight = 0f;
+    public float speed = 5f;
+    VirtualConstruct VC;
+    List<MotionModel> carMotions;
     // Use this for initialization
     void Start () {
         problem = Problem.Import(problemPath, trajPath);
+        carMotions = new List<MotionModel>();
         spawnObjects();
+        VC = new VirtualConstruct(problem.formationPositions, vehicleHeight);
+        
+    }
+
+    float getDt()
+    {
+        return Time.deltaTime * speed;
     }
 	
 	// Update is called once per frame
 	void Update () {
-		
-	}
+        carMotions[0].moveTowards(Vector3.zero, getDt());
+    }
+
+    void vcTest()
+    {
+        List<Vector3> points = VC.getPoints(new Vector3(27.5f, 0, 30), -Mathf.PI);
+        foreach(Vector3 point in points)
+        {
+            GameObject thing = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            thing.transform.position = point+Vector3.up;
+        }
+
+    }
+
+    void moveToStartPositions()
+    {
+
+    }
 
     void spawnObjects()
     {
@@ -33,8 +60,8 @@ public class Mother : MonoBehaviour {
         if(problem.boundingPolygon.Count != 0)
             spawnObject(problem.boundingPolygon, "boundingPolygon", boundingObject);
         //Spawn vehicles at start position
-        for (int i = 0; i<problem.startPositions.Count; i++)
-            spawnVehicle(problem.startPositions[i], "vehicle_" + i);
+        //for (int i = 0; i<problem.startPositions.Count; i++)
+            carMotions.Add(spawnVehicle(problem.startPositions[0], "vehicle_" + 0));
 
         spawnVehicle(problem.formationPositions[0], "leaderVehicle");
 
@@ -72,13 +99,15 @@ public class Mother : MonoBehaviour {
         wall.transform.localScale = new Vector3(wallThickness, wallHeight, width);
     }
 
-    void spawnVehicle(float[] origin, string name)
+    MotionModel spawnVehicle(float[] origin, string name)
     {
         Vector3 position = new Vector3(origin[0], vehicleHeight, origin[1]);
-        GameObject vehicle = vehicleObject;
+        GameObject vehicle = Instantiate(vehicleObject, vehicleBoundingObject.transform, true);
         vehicle.name = name;
         vehicle.transform.position = position;
         vehicle.transform.LookAt(new Vector3((boundingMaxX - boundingMinX) / 2, vehicleHeight, (boundingMaxZ - boundingMinZ) / 2));
-        Instantiate(vehicle, vehicleBoundingObject.transform, true);
+        MotionModel mm = vehicle.AddComponent<MotionModel>();
+        mm.setParams(problem.vehicle_v_max, problem.vehicle_L, problem.vehicle_phi_max);
+        return mm;
     }
 }
