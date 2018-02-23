@@ -95,7 +95,7 @@ public class Mother : MonoBehaviour {
             Vector3 oldPos = leader.transform.position;
             leader.transform.position = new Vector3(problem.trajectory[currentPosition][0], vehicleHeight, problem.trajectory[currentPosition][1]);
             leader.transform.forward =  new Vector3(Mathf.Cos(problem.theta[currentPosition]), 0, Mathf.Sin(problem.theta[currentPosition]));
-            velocityGoal = (oldPos - leader.transform.position).magnitude/getDt();
+            velocityGoal = (oldPos - leader.transform.position).magnitude/problem.vehicle_dt;
         }
     }
   
