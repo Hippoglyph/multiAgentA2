@@ -222,7 +222,7 @@ MonoBehaviour:
   playerHeight: 0
   chaseObject: {fileID: 1975457108487340, guid: ec3e8f3ed27e2244caaedaf589590a03,
     type: 2}
-  chaseHeight: 0
+  chaseHeight: 0.5
   speed: 5
 --- !u!1 &64273047
 GameObject:
@@ -311,7 +311,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 206367532}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 152.70645, y: -408.5793, z: 500.98557}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -339,7 +339,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 654562104}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 152.70645, y: -408.5793, z: 500.98557}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
