@@ -33,8 +33,6 @@ public class MotherSoccer : MonoBehaviour {
         players = new List<MotionModelSoccer>();
         spawnObjects();
         VC = new VirtualConstructSoccer(problem.formationPositions, playerHeight, boundingMinX, boundingMaxX, boundingMinZ, boundingMaxZ);
-        
-
     }
 
     float getDt()
@@ -140,7 +138,7 @@ public class MotherSoccer : MonoBehaviour {
     void stretchField()
     {
         Transform field = this.gameObject.transform;
-        field.position = new Vector3((boundingMaxX - boundingMinX) / 2, 0, (boundingMaxZ - boundingMinZ) / 2);
+        field.position = new Vector3((boundingMaxX + boundingMinX) / 2, 0, (boundingMaxZ + boundingMinZ) / 2);
         field.localScale = new Vector3((boundingMaxZ - boundingMinZ) / 10, 1, (boundingMaxX - boundingMinX) / 10);
     }
   
