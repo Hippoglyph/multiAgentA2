@@ -36,7 +36,19 @@ public class MotherSwedish : MonoBehaviour {
 
     // Update is called once per frame
 	void Update () {
-        actors[0].drawVO(actors);
+        //actors[0].drawVO(actors);
+       
+       
+        
+        for (int i = 0; i < actors.Count; ++i)
+        {
+            actors[i].calculateVelocity(actors,i,0.1f);
+            actors[i].drawVelocity();
+        }
+
+        for (int i = 0; i < actors.Count; ++i)
+            actors[i].moveTowards(getDt());
+
 
 
     }
@@ -62,7 +74,7 @@ public class MotherSwedish : MonoBehaviour {
 
         //Spawn vehicles at start position
         for (int i = 0; i<problem.startPositions.Count; i++)
-            actors.Add(spawnActor(problem.startPositions[i], "actor_" + i, Mathf.PI, i));
+            actors.Add(spawnActor(problem.startPositions[i], "actor_" + i, Mathf.PI, i, problem.goalPositions[i]));
         stretchField();
     }
 
@@ -106,16 +118,17 @@ public class MotherSwedish : MonoBehaviour {
         wall.transform.localScale = new Vector3(wallThickness, wallHeight, width);
     }
 
-    MotionModelSwedish spawnActor(float[] origin, string name, float orientation, int index)
+    MotionModelSwedish spawnActor(float[] origin, string name, float orientation, int index, float[] goalPoint)
     {
         Vector3 newOrientation = new Vector3(Mathf.Cos(orientation), 0, Mathf.Sin(orientation));
         Vector3 position = new Vector3(origin[0], actorHeight, origin[1]);
+        Vector3 goal = new Vector3(goalPoint[0], actorHeight, goalPoint[1]);
         GameObject actor = Instantiate(actorObject, actorsBoundingObject.transform, true);
         actor.name = name;
         actor.transform.position = position;
         actor.transform.forward = newOrientation;
         MotionModelSwedish mm = actor.AddComponent<MotionModelSwedish>();
-        mm.setParams(problem.vehicle_v_max, actorRadius, 3f, index);
+        mm.setParams(problem.vehicle_v_max, actorRadius, 3f, index, goal);
         return mm;
     }
 }
