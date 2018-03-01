@@ -3,11 +3,72 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class LPSolver  {
-     
+
     // Use this for initialization
+    public static void linearProgram3(List<OrcaLine> lines, int numObstLines, int beginLine, float radius, ref Vector3 result)
+    {
+        float RVO_EPSILON = 0.00001f;
+        float distance = 0.0f;
+
+        for (int i = beginLine; i < lines.Count; ++i)
+        {
+            if (Vector3.Cross(lines[i].direction, lines[i].point - result).y < distance)
+            {
+                /* Result does not satisfy constraint of line i. */
+                List<OrcaLine> projLines = new List<OrcaLine>();
+                for (int ii = 0; ii < numObstLines; ++ii)
+                {
+                    projLines.Add(lines[ii]);
+                }
+
+                for (int j = numObstLines; j < i; ++j)
+                {
+                    OrcaLine line = new OrcaLine();
+
+                    float determinant = -Vector3.Cross(lines[i].direction, lines[j].direction).y;
+
+                    if (Mathf.Abs(determinant) <= RVO_EPSILON)
+                    {
+                        /* Line i and line j are parallel. */
+                        if (Vector3.Dot(lines[i].direction, lines[j].direction) > 0.0f)
+                        {
+                            /* Line i and line j point in the same direction. */
+                            continue;
+                        }
+                        else
+                        {
+                            /* Line i and line j point in opposite direction. */
+                            line.point = 0.5f * (lines[i].point + lines[j].point);
+                        }
+                    }
+                    else
+                    {
+                        line.point = lines[i].point + (-Vector3.Cross(lines[j].direction, lines[i].point - lines[j].point).y / determinant) * lines[i].direction;
+                    }
+
+                    line.direction = (lines[j].direction - lines[i].direction).normalized;
+                    projLines.Add(line);
+                }
+
+                Vector2 tempResult = result;
+                if (false)//linearProgram2(projLines, radius, new Vector2(-lines[i].direction.y(), lines[i].direction.x()), true, ref result) < projLines.Count)
+                {
+                    /*
+                     * This should in principle not happen. The result is by
+                     * definition already in the feasible region of this
+                     * linear program. If it fails, it is due to small
+                     * floating point error, and the current result is kept.
+                     */
+                    result = tempResult;
+                }
+
+                distance = -Vector3.Cross(lines[i].direction, lines[i].point - result).y;
+            }
+        }
+    }
 
 
-    public static bool linearProgram1(List<OrcaLine> lines, int lineNo, float radius, Vector3 optVelocity, ref Vector3 result)
+public static bool linearProgram1(List<OrcaLine> lines, int lineNo, float radius, Vector3 optVelocity, ref Vector3 result)
     {
         float RVO_EPSILON = 0.00001f;
         float dotProduct = Vector3.Dot(lines[lineNo].point , lines[lineNo].direction);
@@ -25,8 +86,8 @@ public class LPSolver  {
 
         for (int i = 0; i < lineNo; ++i)
         {
-            float denominator = Vector3.Cross(lines[lineNo].direction, lines[i].direction).y;
-            float numerator = Vector3.Cross(lines[i].direction, lines[lineNo].point - lines[i].point).y;
+            float denominator = -Vector3.Cross(lines[lineNo].direction, lines[i].direction).y;
+            float numerator = -Vector3.Cross(lines[i].direction, lines[lineNo].point - lines[i].point).y;
 
             if (Mathf.Abs(denominator) <= RVO_EPSILON)
             {

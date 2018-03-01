@@ -20,16 +20,16 @@ public class MotionModelSwedish : MonoBehaviour {
         this.radius = radius;
         this.dt = dt;
         this.myIndex = myIndex;
-        velocity = Vector3.zero;
         myTransform = this.gameObject.transform;
         this.goal = goal;
+        this.velocity = getPrefVel();
     }
 
     public void moveTowards(float dt)
     {
         myTransform.position += velocity * dt;
-        
-       /// myTransform.forward = velocity;
+        if (velocity != Vector3.zero)
+            myTransform.forward = velocity;
     }
 
     public void drawVO(List<MotionModelSwedish> neighbors)
@@ -48,6 +48,8 @@ public class MotionModelSwedish : MonoBehaviour {
     public void drawVelocity()
     {
         Debug.DrawLine(getPosition(), getPosition() + velocity, Color.red, Time.deltaTime);
+        for (float i = 2 * Mathf.PI / 100; i < 2 * Mathf.PI; i += 2 * Mathf.PI / 100)
+            Debug.DrawLine(getPosition() + new Vector3(getRadius() * Mathf.Cos(i- 2 * Mathf.PI / 100), 0f, getRadius() * Mathf.Sin(i- 2 * Mathf.PI / 100)), getPosition() + new Vector3(getRadius() * Mathf.Cos(i),0f, getRadius() * Mathf.Sin(i)),Color.red,Time.deltaTime) ;
     }
 
     List<List<float[]>> getVelocityObstacles(List<MotionModelSwedish> neighbors)
@@ -107,11 +109,38 @@ public class MotionModelSwedish : MonoBehaviour {
 
             }
         }
-        Vector3 newVelocity = Vector3.zero;
-        LPSolver.linearProgram1(orcalines, orcalines.Count-1, vMax, (goal - getPosition()).normalized*vMax, ref newVelocity);
+        Vector3 newVelocity = getPrefVel();
+        int reached = orcalines.Count;
+        for (int i = 0; i < orcalines.Count; ++i)
+        {
+            if (Vector3.Cross(orcalines[i].direction, orcalines[i].point - newVelocity).y < 0.0f)
+            {
+                if (!LPSolver.linearProgram1(orcalines, i, vMax, getPrefVel(), ref newVelocity))
+                {
+                    newVelocity = Vector3.zero;
+                    reached = i;
+                    break;
+                }
+            }
+        }
+
+        if (reached < orcalines.Count)
+        {
+            LPSolver.linearProgram3(orcalines, 0, reached, vMax, ref newVelocity);
+        }
 
         velocity = newVelocity;
     }
+
+    public void drawOrcaLines(List<MotionModelSwedish> neighbours, int myIndex, float time)
+    {
+        for (int i = 0; i<neighbours.Count; i++)
+        {
+            if (i != myIndex)
+                continue;
+        }
+    }
+   
 
     OrcaLine getOrcaLine(MotionModelSwedish buddy, float time)
     {
@@ -123,28 +152,45 @@ public class MotionModelSwedish : MonoBehaviour {
         Vector3 u;
 
         Vector3 w = relVel - (relPos / time);
+        //Debug.Log(w);
         float decBoundary = Vector3.Dot(w, relPos);
 
-        if (decBoundary >= 0.0f && Mathf.Pow(decBoundary,2) <= Mathf.Pow(combRadius,2) * w.sqrMagnitude)
+        if (relPos.sqrMagnitude > Mathf.Pow(combRadius, 2))
         {
-            // Legs
-            float distance = Mathf.Sqrt(relPos.sqrMagnitude - Mathf.Pow(combRadius, 2));
+            if (!(decBoundary < 0.0f && Mathf.Pow(decBoundary, 2) > Mathf.Pow(combRadius, 2) * w.sqrMagnitude))
+            {
+                // Legs
+                float distance = Mathf.Sqrt(relPos.sqrMagnitude - Mathf.Pow(combRadius, 2));
 
-            if (Vector3.Cross(relPos,w).y > 0.0f)
-                orcaline.direction = new Vector3(relPos.x * distance - relPos.z * combRadius, 0.0f, relPos.x * combRadius + relPos.z * distance).normalized;
+                if (Vector3.Cross(relPos, w).y < 0.0f)
+                    orcaline.direction = new Vector3(relPos.x * distance - relPos.z * combRadius, 0.0f, relPos.x * combRadius + relPos.z * distance)/relPos.sqrMagnitude;
+                else
+                    orcaline.direction = -new Vector3(relPos.x * distance + relPos.z * combRadius, 0.0f, -relPos.x * combRadius + relPos.z * distance)/relPos.sqrMagnitude;
+                float uLen = Vector3.Dot(relVel, orcaline.direction);
+                u = uLen * orcaline.direction - relVel;
+            }
             else
-                orcaline.direction = -new Vector3(relPos.x * distance + relPos.z * combRadius, 0.0f, -relPos.x * combRadius + relPos.z * distance).normalized;
-            float uLen = Vector3.Dot(relVel, orcaline.direction);
-            u = uLen * orcaline.direction - relVel;
+            {
+                Vector3 wNorm = w.normalized;
+                orcaline.direction = new Vector3(wNorm.z, 0.0f, -wNorm.x);
+                u = ((combRadius / time) - w.magnitude) * wNorm;
+            }
         }
+
         else
         {
-            orcaline.direction = new Vector3(w.normalized.z, 0.0f, -w.normalized.x);
-            u = ((combRadius/time) - w.magnitude ) *w.normalized;
+            //Debug.Log("COLLIDING WTF MON");
+            Vector3 wNorm = w.normalized;
+            orcaline.direction = new Vector3(wNorm.z, 0.0f, -wNorm.x);
+            u = ((combRadius / time) - w.magnitude) * wNorm;
         }
         orcaline.point = getVelocity() + 0.5f * u;
-       
         return orcaline;
+    }
+
+    Vector3 getPrefVel()
+    {
+        return Vector3.ClampMagnitude(goal - getPosition(),vMax);
     }
 
     public float getRadius()

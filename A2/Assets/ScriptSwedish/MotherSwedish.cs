@@ -43,7 +43,7 @@ public class MotherSwedish : MonoBehaviour {
         for (int i = 0; i < actors.Count; ++i)
         {
             actors[i].calculateVelocity(actors,i,0.1f);
-            actors[i].drawVelocity();
+            //actors[i].drawVelocity();
         }
 
         for (int i = 0; i < actors.Count; ++i)

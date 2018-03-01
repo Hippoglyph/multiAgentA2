@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -394,7 +394,7 @@ MonoBehaviour:
   actorObject: {fileID: 100004, guid: 14a32c2c209c34e428472b6f5ae5d502, type: 3}
   actorHeight: 0
   actorRadius: 0.5
-  speed: 5
+  speed: 1
 --- !u!1 &788596969
 GameObject:
   m_ObjectHideFlags: 0
