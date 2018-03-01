@@ -160,7 +160,7 @@ public class MotionModelSwedish : MonoBehaviour {
             if (!(decBoundary < 0.0f && Mathf.Pow(decBoundary, 2) > Mathf.Pow(combRadius, 2) * w.sqrMagnitude))
             {
                 // Legs
-                float distance = Mathf.Sqrt(relPos.sqrMagnitude - Mathf.Pow(combRadius, 2));
+                float distance = Mathf.Sqrt(relPos.sqrMagnitude + Mathf.Pow(combRadius, 2)); //maybe minus
 
                 if (Vector3.Cross(relPos, w).y < 0.0f)
                     orcaline.direction = new Vector3(relPos.x * distance - relPos.z * combRadius, 0.0f, relPos.x * combRadius + relPos.z * distance)/relPos.sqrMagnitude;
