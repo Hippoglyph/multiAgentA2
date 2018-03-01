@@ -25,7 +25,17 @@ public class MotherSwedish : MonoBehaviour {
         problem = ProblemSwedish.Import(problemPath);
         actors = new List<MotionModelSwedish>();
         spawnObjects();
-        
+    }
+
+    public void shuffle(int[] array)
+    {
+        for (int i = 0; i < array.Length; i++)
+        {
+            int rnd = UnityEngine.Random.Range(0, array.Length);
+            int tempGO = array[rnd];
+            array[rnd] = array[i];
+            array[i] = tempGO;
+        }
     }
 
     float getDt()
@@ -37,13 +47,16 @@ public class MotherSwedish : MonoBehaviour {
     // Update is called once per frame
 	void Update () {
         //actors[0].drawVO(actors);
-       
-       
-        
-        for (int i = 0; i < actors.Count; ++i)
+
+        int[] order = new int[actors.Count];
+        for (int i = 0; i < actors.Count; i++)
+            order[i] = i;
+        shuffle(order);
+
+        foreach(int i in order)
         {
-            actors[i].calculateVelocity(actors,i,0.1f);
-            //actors[i].drawVelocity();
+            actors[i].calculateVelocity(actors,i,0.3f);
+            actors[i].drawVelocity();
         }
 
         for (int i = 0; i < actors.Count; ++i)

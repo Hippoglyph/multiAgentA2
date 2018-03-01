@@ -29,10 +29,11 @@ public class MotionModelSwedish : MonoBehaviour {
     {
         myTransform.position += velocity * dt;
         if (velocity != Vector3.zero)
-            myTransform.forward = velocity;
+            //myTransform.forward = velocity;
+            myTransform.rotation = Quaternion.RotateTowards(myTransform.rotation, Quaternion.LookRotation(velocity), dt * 180f);
     }
 
-    public void drawVO(List<MotionModelSwedish> neighbors)
+    public void drawVO(List<MotionModelSwedish> neighbors)  
     {
         foreach(List<float[]> obstacle in getVelocityObstacles(neighbors))
         {
@@ -48,7 +49,7 @@ public class MotionModelSwedish : MonoBehaviour {
     public void drawVelocity()
     {
         Debug.DrawLine(getPosition(), getPosition() + velocity, Color.red, Time.deltaTime);
-        for (float i = 2 * Mathf.PI / 100; i < 2 * Mathf.PI; i += 2 * Mathf.PI / 100)
+        for (float i = 0f; i < 2 * Mathf.PI; i += 2 * Mathf.PI / 100)
             Debug.DrawLine(getPosition() + new Vector3(getRadius() * Mathf.Cos(i- 2 * Mathf.PI / 100), 0f, getRadius() * Mathf.Sin(i- 2 * Mathf.PI / 100)), getPosition() + new Vector3(getRadius() * Mathf.Cos(i),0f, getRadius() * Mathf.Sin(i)),Color.red,Time.deltaTime) ;
     }
 
@@ -98,15 +99,31 @@ public class MotionModelSwedish : MonoBehaviour {
         return vertices;
     }
 
+    public void shuffle(int[] array)
+    {
+        for (int i = 0; i < array.Length; i++)
+        {
+            int rnd = UnityEngine.Random.Range(0, array.Length);
+            int tempGO = array[rnd];
+            array[rnd] = array[i];
+            array[i] = tempGO;
+        }
+    }
+
     public void calculateVelocity(List<MotionModelSwedish> neighbours, int myIndex, float time)
     {
+        float scanRadius = 5f;
         List<OrcaLine> orcalines = new List<OrcaLine>();
-        for (int i = 0; i<neighbours.Count; i++)
+        int[] order = new int[neighbours.Count];
+        for (int i = 0; i < neighbours.Count; i++)
+            order[i] = i;
+        shuffle(order);
+
+        foreach(int i in order)
         {
-            if (i != myIndex)
+            if (i != myIndex && (getPosition() - neighbours[i].getPosition()).sqrMagnitude < Mathf.Pow(getRadius(),2)*scanRadius)
             {
                 orcalines.Add(getOrcaLine(neighbours[i], time));
-
             }
         }
         Vector3 newVelocity = getPrefVel();
