@@ -52,12 +52,13 @@ public class MotherSwedish : MonoBehaviour {
         for (int i = 0; i < actors.Count; i++)
             order[i] = i;
         shuffle(order);
-
         foreach(int i in order)
         {
-            actors[i].calculateVelocity(actors,i,0.3f);
-            actors[i].drawVelocity();
+            actors[i].calculateVelocity(actors,i,2f, getDt());
+            //actors[i].drawVelocity();
+            
         }
+
 
         for (int i = 0; i < actors.Count; ++i)
             actors[i].moveTowards(getDt());
@@ -88,6 +89,7 @@ public class MotherSwedish : MonoBehaviour {
         //Spawn vehicles at start position
         for (int i = 0; i<problem.startPositions.Count; i++)
             actors.Add(spawnActor(problem.startPositions[i], "actor_" + i, Mathf.PI, i, problem.goalPositions[i]));
+
         stretchField();
     }
 

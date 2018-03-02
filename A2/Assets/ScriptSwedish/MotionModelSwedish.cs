@@ -110,20 +110,20 @@ public class MotionModelSwedish : MonoBehaviour {
         }
     }
 
-    public void calculateVelocity(List<MotionModelSwedish> neighbours, int myIndex, float time)
+    public void calculateVelocity(List<MotionModelSwedish> neighbours, int myIndex, float time, float dt)
     {
-        float scanRadius = 5f;
+        float scanRadius = 5;
         List<OrcaLine> orcalines = new List<OrcaLine>();
-        int[] order = new int[neighbours.Count];
-        for (int i = 0; i < neighbours.Count; i++)
-            order[i] = i;
-        shuffle(order);
+        //int[] order = new int[neighbours.Count];
+        //for (int i = 0; i < neighbours.Count; i++)
+        //  order[i] = i;
+        //shuffle(order);
 
-        foreach(int i in order)
+        for (int i = 0; i < neighbours.Count; i++)
         {
-            if (i != myIndex && (getPosition() - neighbours[i].getPosition()).sqrMagnitude < Mathf.Pow(getRadius(),2)*scanRadius)
+            if (i != myIndex && (getPosition() - neighbours[i].getPosition()).sqrMagnitude < Mathf.Pow(getRadius()*2*scanRadius,2))
             {
-                orcalines.Add(getOrcaLine(neighbours[i], time));
+                orcalines.Add(getOrcaLine(neighbours[i], time, dt));
             }
         }
         Vector3 newVelocity = getPrefVel();
@@ -143,23 +143,14 @@ public class MotionModelSwedish : MonoBehaviour {
 
         if (reached < orcalines.Count)
         {
-            LPSolver.linearProgram3(orcalines, 0, reached, vMax, ref newVelocity);
+            LPSolver.linearProgram3(orcalines, orcalines.Count, reached, vMax, ref newVelocity);
         }
 
         velocity = newVelocity;
     }
+  
 
-    public void drawOrcaLines(List<MotionModelSwedish> neighbours, int myIndex, float time)
-    {
-        for (int i = 0; i<neighbours.Count; i++)
-        {
-            if (i != myIndex)
-                continue;
-        }
-    }
-   
-
-    OrcaLine getOrcaLine(MotionModelSwedish buddy, float time)
+    OrcaLine getOrcaLine(MotionModelSwedish buddy, float time, float dt)
     {
         Vector3 relPos = buddy.getPosition() - getPosition();
         Vector3 relVel = getVelocity() - buddy.getVelocity();
@@ -177,7 +168,7 @@ public class MotionModelSwedish : MonoBehaviour {
             if (!(decBoundary < 0.0f && Mathf.Pow(decBoundary, 2) > Mathf.Pow(combRadius, 2) * w.sqrMagnitude))
             {
                 // Legs
-                float distance = Mathf.Sqrt(relPos.sqrMagnitude + Mathf.Pow(combRadius, 2)); //maybe minus
+                float distance = Mathf.Sqrt(relPos.sqrMagnitude - Mathf.Pow(combRadius, 2)); 
 
                 if (Vector3.Cross(relPos, w).y < 0.0f)
                     orcaline.direction = new Vector3(relPos.x * distance - relPos.z * combRadius, 0.0f, relPos.x * combRadius + relPos.z * distance)/relPos.sqrMagnitude;
@@ -196,12 +187,17 @@ public class MotionModelSwedish : MonoBehaviour {
 
         else
         {
-            //Debug.Log("COLLIDING WTF MON");
+            
+            w = relVel - (relPos / dt);
             Vector3 wNorm = w.normalized;
             orcaline.direction = new Vector3(wNorm.z, 0.0f, -wNorm.x);
-            u = ((combRadius / time) - w.magnitude) * wNorm;
+            u = ((combRadius / dt) - w.magnitude) * wNorm;
         }
         orcaline.point = getVelocity() + 0.5f * u;
+
+        //Debug.DrawLine(getPosition() + orcaline.point - (Vector3.Cross(Vector3.up, orcaline.direction)).normalized * vMax, getPosition() + orcaline.point + (Vector3.Cross(Vector3.up, orcaline.direction)).normalized * vMax, Color.blue, Time.deltaTime);
+        //Debug.DrawLine(getPosition() + orcaline.point, getPosition() + orcaline.point + orcaline.direction, Color.blue, Time.deltaTime);
+
         return orcaline;
     }
 
