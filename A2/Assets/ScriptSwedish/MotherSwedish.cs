@@ -17,6 +17,7 @@ public class MotherSwedish : MonoBehaviour {
     public float actorHeight = 0f;
     public float actorRadius = 0.5f;
     public float speed = 5f;
+    public float time = 2f;
 
     List<MotionModelSwedish> actors;
 
@@ -46,36 +47,23 @@ public class MotherSwedish : MonoBehaviour {
 
     // Update is called once per frame
 	void Update () {
-        //actors[0].drawVO(actors);
+        moveAll();
+    }
 
+    void moveAll()
+    {
         int[] order = new int[actors.Count];
         for (int i = 0; i < actors.Count; i++)
             order[i] = i;
         shuffle(order);
-        foreach(int i in order)
+        foreach (int i in order)
         {
-            actors[i].calculateVelocity(actors,i,2f, getDt());
-            //actors[i].drawVelocity();
-            
+            actors[i].calculateVelocity(actors, i, time, getDt());
         }
 
 
         for (int i = 0; i < actors.Count; ++i)
             actors[i].moveTowards(getDt());
-
-
-
-    }
-
-    void moveAll()
-    {
-        /*
-        Vector3 position = new Vector3(problem.trajectory[currentPosition][0], vehicleHeight, problem.trajectory[currentPosition][1]);
-        for (int i = 0; i<cars.Count;i++)
-        {
-            cars[i].moveTowards(VC.getPosition(i, position, problem.theta[currentPosition]), getDt(), velocityGoal);
-        }
-        */
     }
   
     void spawnObjects()
@@ -86,9 +74,17 @@ public class MotherSwedish : MonoBehaviour {
         for(int i = 0; i < problem.obstacles.Count; i++)
             spawnObject(problem.obstacles[i], "obstacle_"+i, boundingObject);
 
-        //Spawn vehicles at start position
+        //Spawn bois at start position
         for (int i = 0; i<problem.startPositions.Count; i++)
             actors.Add(spawnActor(problem.startPositions[i], "actor_" + i, Mathf.PI, i, problem.goalPositions[i]));
+
+        //JOUST
+        //actors.Add(spawnActor(problem.startPositions[0], "Arthur", Mathf.PI, 0, problem.startPositions[problem.startPositions.Count-1]));
+        //actors.Add(spawnActor(problem.startPositions[problem.startPositions.Count-1], "Maximillian", Mathf.PI, 1, problem.startPositions[0]));
+        //actors.Add(spawnActor(problem.startPositions[(problem.startPositions.Count-1)/2], "Arestoteles", Mathf.PI, 2, problem.goalPositions[(problem.startPositions.Count - 1) / 2]));
+        //actors.Add(spawnActor(problem.goalPositions[(problem.startPositions.Count - 1) / 2], "Hans", Mathf.PI, 3, problem.startPositions[(problem.startPositions.Count - 1) / 2]));
+
+
 
         stretchField();
     }

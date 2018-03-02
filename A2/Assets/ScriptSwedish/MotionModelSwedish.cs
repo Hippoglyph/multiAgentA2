@@ -114,11 +114,6 @@ public class MotionModelSwedish : MonoBehaviour {
     {
         float scanRadius = 5;
         List<OrcaLine> orcalines = new List<OrcaLine>();
-        //int[] order = new int[neighbours.Count];
-        //for (int i = 0; i < neighbours.Count; i++)
-        //  order[i] = i;
-        //shuffle(order);
-
         for (int i = 0; i < neighbours.Count; i++)
         {
             if (i != myIndex && (getPosition() - neighbours[i].getPosition()).sqrMagnitude < Mathf.Pow(getRadius()*2*scanRadius,2))
@@ -160,7 +155,6 @@ public class MotionModelSwedish : MonoBehaviour {
         Vector3 u;
 
         Vector3 w = relVel - (relPos / time);
-        //Debug.Log(w);
         float decBoundary = Vector3.Dot(w, relPos);
 
         if (relPos.sqrMagnitude > Mathf.Pow(combRadius, 2))
