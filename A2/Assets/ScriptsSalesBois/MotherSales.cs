@@ -21,12 +21,14 @@ public class MotherSales : MonoBehaviour {
     public float speed = 5f;
     List<GameObject> points;
     List<MotionModelSalesBoi> bois;
+    SOM som;
     // Use this for initialization
     void Start () {
         problem = ProblemSales.Import(problemPath);
         bois = new List<MotionModelSalesBoi>();
         points = new List<GameObject>();
         spawnObjects();
+        som = new SOM(problem.pointsOfInterest, problem.startPositions, problem.goalPositions);
     }
 
     float getDt()
@@ -36,9 +38,16 @@ public class MotherSales : MonoBehaviour {
     }
 
     // Update is called once per frame
+    float currentTime = 0f;
 	void Update () {
-  
         
+        currentTime += Time.deltaTime;
+        if(currentTime > 0.1f)
+        {
+            currentTime = 0f;
+            som.update(1);
+            som.drawState(0.1f);
+        }
     }
 
     void moveAll()
