@@ -39,13 +39,14 @@ public class MotherSales : MonoBehaviour {
 
     // Update is called once per frame
     float currentTime = 0f;
+    int hood = 2;
 	void Update () {
         
         currentTime += Time.deltaTime;
         if(currentTime > 0.1f)
         {
             currentTime = 0f;
-            som.update(1);
+            som.update(hood);
             som.drawState(0.1f);
         }
     }

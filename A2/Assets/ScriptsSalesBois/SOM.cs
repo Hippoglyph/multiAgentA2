@@ -10,7 +10,7 @@ public class SOM {
     List<Vector3[]> nodes;
     Color[] colors;
     float moveStepSize = 0.2f;
-    int pullForce = 5;
+    int pullForce = 10;
 
     public SOM(List<float[]> points, List<float[]> startBois, List<float[]> goalBois)
     {
@@ -117,11 +117,12 @@ public class SOM {
     {
         int[] winners = getAllWinners(agent, pointIndex, hood);
         for(int i = 0; i < winners.Length; i++)
-            nodes[agent][winners[i]] += moveStepSize * (interestPoint - nodes[agent][winners[i]]).normalized; //Maybe not normalized
+            nodes[agent][winners[i]] += moveStepSize * (interestPoint - nodes[agent][winners[i]]); //Maybe not normalized
     }
 
     public void update(int hood)
     {
+        hood = Mathf.Max(1, hood);
         int[] order = getRandomOrder(points.Count);
         foreach(int index in order)
         {
@@ -129,7 +130,8 @@ public class SOM {
             move(winner[0], winner[1], hood, points[index]);
         }
 
-        for(int agent = 0; agent < nodes.Count; agent++)
+        hood = Mathf.Max(1, hood-1);
+        for (int agent = 0; agent < nodes.Count; agent++)
         {
             for (int i = 0; i < pullForce; i++)
             {
