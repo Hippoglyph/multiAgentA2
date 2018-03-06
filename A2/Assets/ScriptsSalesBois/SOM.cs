@@ -211,6 +211,7 @@ public class SOM {
     {
         List<Vector3> order = new List<Vector3>();
         order.Add(startBois[agentNr]);
+        //FirstPass
         for(int node = 0; node < assignedPoints.Length; node++)
         {
             if (assignedPoints[node] == null)
@@ -220,6 +221,7 @@ public class SOM {
             foreach (List<Vector3> per in permutations(assignedPoints[node]))
             {
                 float tmpDist = getDestanceInNode(per);
+                tmpDist += (order[order.Count - 1] - per[0]).magnitude; 
                 if(tmpDist < dist)
                 {
                     dist = tmpDist;
@@ -229,6 +231,31 @@ public class SOM {
             order.AddRange(bestOrder);
         }
         order.Add(goalBois[agentNr]);
+
+        //SecondPass
+        int orderIndex = 0;
+        for (int node = 0; node < assignedPoints.Length; node++)
+        {
+            if (assignedPoints[node] == null)
+                continue;
+            float dist = float.MaxValue;
+            List<Vector3> bestOrder = new List<Vector3>();
+            foreach (List<Vector3> per in permutations(assignedPoints[node]))
+            {
+                float tmpDist = getDestanceInNode(per);
+                tmpDist += (order[orderIndex] - per[0]).magnitude;
+                tmpDist += (order[orderIndex + per.Count+1] - per[per.Count-1]).magnitude;
+                if (tmpDist < dist)
+                {
+                    dist = tmpDist;
+                    bestOrder = per;
+                }
+            }
+            for (int i = 0; i < bestOrder.Count; i++)
+                order[orderIndex + i + 1] = bestOrder[i];
+            orderIndex += bestOrder.Count;
+        }
+
         return order.ToArray();
     }
 
@@ -236,7 +263,7 @@ public class SOM {
     {
         float sum = 0.0f;
         for (int i = 1; i < nodePoints.Count; i++)
-            sum += (nodePoints[i]- nodePoints[i - 1]).sqrMagnitude;
+            sum += (nodePoints[i]- nodePoints[i - 1]).magnitude;
         return sum;
     }
 

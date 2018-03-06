@@ -19,6 +19,7 @@ public class MotherSales : MonoBehaviour {
     public float boisHeight = 0f;
     public float pointHeight = 0.4f;
     public float speed = 5f;
+    public float drawTime = 0.1f;
     public int epochs = 20;
     List<GameObject> points;
     List<MotionModelSalesBoi> bois;
@@ -78,7 +79,7 @@ public class MotherSales : MonoBehaviour {
     {
   
         currentTime += Time.deltaTime;
-        if (currentTime > 0.1f)
+        if (currentTime > drawTime)
         {
             currentTime = 0f;
             if (hoodFixer > epochs / (startingHood + 1))
@@ -89,7 +90,7 @@ public class MotherSales : MonoBehaviour {
             hoodFixer++;
 
             som.update(hood);
-            som.drawState(0.1f);
+            som.drawState(drawTime);
             trainCounter++;
         }
         if (trainCounter >= epochs)
