@@ -19,6 +19,7 @@ public class MotherSales : MonoBehaviour {
     public float boisHeight = 0f;
     public float pointHeight = 0.4f;
     public float speed = 5f;
+    public int epochs = 20;
     List<GameObject> points;
     List<MotionModelSalesBoi> bois;
     SOM som;
@@ -38,17 +39,28 @@ public class MotherSales : MonoBehaviour {
     }
 
     // Update is called once per frame
-    float currentTime = 0f;
-    int hood = 2;
-	void Update () {
-        
-        currentTime += Time.deltaTime;
-        if(currentTime > 0.1f)
+
+    bool trained = false;
+    List<Vector3[]> boisPaths;
+    bool havePaths = false;
+    void Update ()
+    {
+        if (!trained)
         {
-            currentTime = 0f;
-            som.update(hood);
-            som.drawState(0.1f);
+            trained = trainSom();
+            return;
         }
+
+        if (!havePaths)
+        {
+            boisPaths = som.getPathsForBois();
+            havePaths = true;
+            return;
+        }
+
+        som.drawPaths(Time.deltaTime);
+            
+        
     }
 
     void moveAll()
@@ -56,7 +68,38 @@ public class MotherSales : MonoBehaviour {
        
     }
 
+
+    float currentTime = 0f;
+    static int startingHood = 3;
+    int trainCounter = 0;
+    int hood = startingHood;
+    int hoodFixer = 0;
+    bool trainSom()
+    {
   
+        currentTime += Time.deltaTime;
+        if (currentTime > 0.1f)
+        {
+            currentTime = 0f;
+            if (hoodFixer > epochs / (startingHood + 1))
+            {
+                hoodFixer = 0;
+                hood--;
+            }
+            hoodFixer++;
+
+            som.update(hood);
+            som.drawState(0.1f);
+            trainCounter++;
+        }
+        if (trainCounter >= epochs)
+        {
+            som.calculateBoisVisitOrder();
+            return true;
+        }
+        return false;
+    }
+
     void spawnObjects()
     {
         //Spawn bounding wall
