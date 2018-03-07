@@ -31,36 +31,42 @@ public class MotherSales : MonoBehaviour {
         points = new List<GameObject>();
         spawnObjects();
         som = new SOM(problem.pointsOfInterest, problem.startPositions, problem.goalPositions);
+        List<float[]> interestings = new List<float[]>();
+        interestings.AddRange(problem.pointsOfInterest);
+        interestings.AddRange(problem.goalPositions);
+        interestings.AddRange(problem.startPositions);
+        VisibilityGraph vGraph = new VisibilityGraph(problem.obstacles, interestings);
+        vGraph.drawGraph();
     }
 
     float getDt()
     {
         return Time.deltaTime * speed;
-        //return problem.vehicle_dt * speed;
     }
 
     // Update is called once per frame
-
     bool trained = false;
     List<Vector3[]> boisPaths;
     bool havePaths = false;
     void Update ()
     {
-        if (!trained)
+        if (false)
         {
-            trained = trainSom();
-            return;
-        }
+            if (!trained)
+            {
+                trained = trainSom();
+                return;
+            }
 
-        if (!havePaths)
-        {
-            boisPaths = som.getPathsForBois();
-            havePaths = true;
-            return;
-        }
+            if (!havePaths)
+            {
+                boisPaths = som.getPathsForBois();
+                havePaths = true;
+                return;
+            }
 
-        som.drawPaths(Time.deltaTime);
-            
+            som.drawPaths(Time.deltaTime);
+        }
         
     }
 
