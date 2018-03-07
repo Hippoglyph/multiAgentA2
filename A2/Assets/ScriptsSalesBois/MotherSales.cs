@@ -36,7 +36,18 @@ public class MotherSales : MonoBehaviour {
         interestings.AddRange(problem.goalPositions);
         interestings.AddRange(problem.startPositions);
         VisibilityGraph vGraph = new VisibilityGraph(problem.obstacles, interestings);
-        vGraph.drawGraph();
+        instaTrainSom();
+        List<Vector3[]> pathsForBois = som.getPathsForBois();
+        
+        //vGraph.drawGraph();
+
+        for(int j = 0; j < pathsForBois.Count; j++)
+        {
+            Vector3[] boiPath = vGraph.getPath(pathsForBois[j]);
+            for (int i = 0; i < boiPath.Length - 1; i++)
+                Debug.DrawLine(boiPath[i], boiPath[i + 1], Color.red, 10000f);
+        }
+            
     }
 
     float getDt()
@@ -105,6 +116,24 @@ public class MotherSales : MonoBehaviour {
             return true;
         }
         return false;
+    }
+
+    void instaTrainSom()
+    {
+        for (int i = 0; i < epochs; i++)
+        {
+            if (hoodFixer > epochs / (startingHood + 1))
+            {
+                hoodFixer = 0;
+                hood--;
+            }
+            hoodFixer++;
+            som.update(hood);
+            som.drawState(drawTime);
+        }
+        
+        som.calculateBoisVisitOrder();
+        
     }
 
     void spawnObjects()

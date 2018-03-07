@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class VisibilityGraph {
 
@@ -44,6 +45,7 @@ public class VisibilityGraph {
         createEdges();
     }
 
+
     void createEdges()
     {
         for (int i = 0; i < vertices.Length; i++)
@@ -54,7 +56,7 @@ public class VisibilityGraph {
                     edges[i][j] = -1;
                 else
                 {
-                    if (!(obstacleIds[i] == obstacleIds[j]) && !collides(i, j))
+                    if ((!(obstacleIds[i] == obstacleIds[j]) || (obstacleIds[i] == -1 || obstacleIds[j] == -1)) && !collides(i, j))
                         edges[i][j] = (vertices[i] - vertices[j]).magnitude;
                     else
                         edges[i][j] = -1;
@@ -166,6 +168,109 @@ public class VisibilityGraph {
     {
         return new Vector3(point[0], 0f, point[1]);
     }
+
+    int getIndex(Vector3 pos)
+    {
+        float distance = (vertices[0] - pos).sqrMagnitude;
+        int bestI = 0;
+        for (int i = 1; i < vertices.Length; i++)
+        {
+            float newDistance = (vertices[i] - pos).sqrMagnitude;
+            if (newDistance < distance)
+            {
+                distance = newDistance;
+                bestI = i;
+            }          
+        }
+        return bestI;
+    }
+
+    public Vector3[] getPath(Vector3[] interestPoints)
+    {
+        List<Vector3> path = new List<Vector3>();
+        for (int i = 0; i < interestPoints.Length - 1; i++)
+            path.AddRange(AStar(getIndex(interestPoints[i]), getIndex(interestPoints[i + 1])));
+        return path.ToArray();
+    }
+
+    List<Vector3> AStar(int from, int to)
+    {
+        HashSet<int> closedSet = new HashSet<int>();
+        List<int> openSet = new List<int>() { from };
+        Dictionary<int, int> cameFrom = new Dictionary<int, int>();
+        Dictionary<int, float> gScore = new Dictionary<int, float>();
+        Dictionary<int, float> fScore = new Dictionary<int, float>();
+        gScore.Add(from, 0f);
+        fScore.Add(from, Vector3.Distance(vertices[from], vertices[to]));
+        int count = 0;
+        while(openSet.Count != 0 && count < 1000)
+        {
+            count++;
+            float minFScore = float.MaxValue;
+            int current = openSet[0];
+            int currentI = 0;
+            for (int i = 0; i < openSet.Count; i++)
+            {
+                if (!fScore.ContainsKey(openSet[i]))
+                    fScore[openSet[i]] = float.MaxValue;
+                if (fScore[openSet[i]] < minFScore)
+                {
+                    minFScore = fScore[openSet[i]];
+                    current = openSet[i];
+                    currentI = i;
+                }
+            }
+            if (current == to)
+            {
+                return reconstructPath(cameFrom, current);
+            }
+            openSet.RemoveAt(currentI);
+            closedSet.Add(current);
+            foreach(int nejbor in getNeighbours(current))
+            {
+                if (closedSet.Contains(nejbor))
+                    continue;
+                float tentGscore = gScore[current] + edges[current][nejbor];
+                if (!gScore.ContainsKey(nejbor))
+                    gScore.Add(nejbor, float.MaxValue);
+                if (tentGscore >= gScore[nejbor])
+                    continue;
+                if (!openSet.Contains(nejbor))
+                    openSet.Add(nejbor);
+                cameFrom[nejbor] = current;
+                gScore[nejbor] = tentGscore;
+                fScore[nejbor] = gScore[nejbor] + Vector3.Distance(vertices[nejbor], vertices[to]); 
+            }
+            
+        }
+        return new List<Vector3>();
+
+    }
+
+    List<Vector3> reconstructPath(Dictionary<int,int> cameFrom, int current)
+    {
+        Stack<Vector3> path = new Stack<Vector3>();
+        path.Push(vertices[current]);
+        while (cameFrom.ContainsKey(current))
+        {
+            current = cameFrom[current];
+            path.Push(vertices[current]);
+        }
+        return path.ToList();
+    }
+
+    List<int> getNeighbours(int me)
+    {
+        List<int> neighbours = new List<int>();
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            if (edges[me][i] != -1)
+                neighbours.Add(i);
+        }
+        return neighbours;
+    }
+    
+
 }
 
 
