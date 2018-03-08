@@ -5,57 +5,42 @@ using UnityEngine;
 
 public class MotionModelSalesBoi : MonoBehaviour {
 
-    float vMax, length, phiMax, aMax;
-    public bool inFormation = false;
-    Vector3 velocity;
+    float vMax;
+    Vector3[] path;
+    Transform myTransform;
+    int nextPoint;
 
-    public void setParams(float vMax, float length, float phiMax, float aMax)
+    public void setParams(float vMax)
     {
         this.vMax = vMax;
-        this.length = length;
-        this.phiMax = phiMax;
-        this.aMax = aMax;
-        velocity = Vector3.zero;
+
+        myTransform = this.gameObject.transform;
+
     }
 
-    public void moveTowards(Vector3 targetPos, float dt, float velocityGoal)
+    public void addPath(Vector3[] path)
     {
+        this.path = path;
+        nextPoint = 0;
+    }
 
-        Transform car = this.gameObject.transform;
-        Vector3 path = targetPos - car.position;
-        float accelerate = aMax;
-        Vector3 direction = (targetPos - car.position + velocity * dt).normalized;
-
-        //Debug.Log(velocityGoal);
-
-
-        if (velocity.magnitude - aMax * dt < 0 && path.magnitude < vMax*dt)
+    public bool moveTowards(float dt)
+    {
+        if (nextPoint >= path.Length)
+            return false;
+        if ((myTransform.position - path[nextPoint]).sqrMagnitude < vMax * dt)
         {
-            velocity = Vector3.zero;
-            inFormation = true;
-            return;
+            myTransform.position = path[nextPoint];
+            nextPoint++;
+            return true;
         }
-        else
-            inFormation = false;
+        myTransform.position += Vector3.ClampMagnitude((path[nextPoint] - myTransform.position).normalized * vMax * dt, (path[nextPoint] - myTransform.position).magnitude);
+        myTransform.rotation = Quaternion.RotateTowards(myTransform.rotation, Quaternion.LookRotation((path[nextPoint] - myTransform.position)), dt * 360f);
+        return false;
+    }
 
-        if (path.magnitude < (velocity.sqrMagnitude - Mathf.Pow(velocityGoal * 0.9f, 2)) / (2 * aMax * dt))
-        {
-            direction = -velocity.normalized;
-            accelerate = Mathf.Min(path.magnitude, aMax);
-        }
-
-
-        Vector3 deltaVel = direction * accelerate * dt;
-        Vector3 newVel = Vector3.ClampMagnitude(velocity + deltaVel, vMax);
-        float xMove = newVel.x * dt;
-        float yMove = newVel.z * dt;
-        Vector3 newPosition = new Vector3(car.position.x + xMove, car.position.y, car.position.z + yMove);
-        Vector3 newOrientation = path.normalized;
-        float xVel = xMove / dt;
-        float zVel = yMove / dt;
-
-        car.position = newPosition;
-        velocity = new Vector3(xVel, 0, zVel);
-        car.forward = newOrientation;
+    public Vector3 getPosition()
+    {
+        return myTransform.position;
     }
 }

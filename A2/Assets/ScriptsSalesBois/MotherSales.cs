@@ -21,6 +21,11 @@ public class MotherSales : MonoBehaviour {
     public float speed = 5f;
     public float drawTime = 0.1f;
     public int epochs = 20;
+    float cooldown = 1f;
+    public float waitTime = 1f;
+    public bool drawFinalPath = false;
+    public bool simulate = false;
+    VisibilityGraph vGraph;
     List<GameObject> points;
     List<MotionModelSalesBoi> bois;
     SOM som;
@@ -35,19 +40,8 @@ public class MotherSales : MonoBehaviour {
         interestings.AddRange(problem.pointsOfInterest);
         interestings.AddRange(problem.goalPositions);
         interestings.AddRange(problem.startPositions);
-        VisibilityGraph vGraph = new VisibilityGraph(problem.obstacles, interestings);
-        instaTrainSom();
-        List<Vector3[]> pathsForBois = som.getPathsForBois();
-        
-        //vGraph.drawGraph();
-
-        for(int j = 0; j < pathsForBois.Count; j++)
-        {
-            Vector3[] boiPath = vGraph.getPath(pathsForBois[j]);
-            for (int i = 0; i < boiPath.Length - 1; i++)
-                Debug.DrawLine(boiPath[i], boiPath[i + 1], Color.red, 10000f);
-        }
-            
+        vGraph = new VisibilityGraph(problem.obstacles, interestings);
+        cooldown = waitTime; 
     }
 
     float getDt()
@@ -57,11 +51,16 @@ public class MotherSales : MonoBehaviour {
 
     // Update is called once per frame
     bool trained = false;
-    List<Vector3[]> boisPaths;
-    bool havePaths = false;
+    bool drawnNodeState = false;
+    bool drawnFinalState = false;
     void Update ()
     {
-        if (false)
+        if (cooldown > 0)
+        {
+            cooldown -= Time.deltaTime;
+            return;
+        }
+        if (simulate)
         {
             if (!trained)
             {
@@ -69,21 +68,67 @@ public class MotherSales : MonoBehaviour {
                 return;
             }
 
-            if (!havePaths)
+            if (!drawnNodeState)
             {
-                boisPaths = som.getPathsForBois();
-                havePaths = true;
+                som.drawPaths(waitTime);
+                cooldown = waitTime;
+                drawnNodeState = true;
+                return;
+            }
+            if (!drawnFinalState)
+            {
+                getFinalPaths(drawFinalPath);
+                cooldown = waitTime;
+                drawnFinalState = true;
                 return;
             }
 
-            som.drawPaths(Time.deltaTime);
         }
-        
+        else if(!trained)
+        {
+            instaTrainSom();
+            getFinalPaths(drawFinalPath);
+        }
+        if (trained)
+        {
+            moveAll();
+        }
     }
 
     void moveAll()
     {
-       
+        for (int i = 0; i < bois.Count; i++)
+        {
+            if (bois[i].moveTowards(getDt()))
+            {
+                removeInterestPoint(bois[i].getPosition());
+            }
+        }
+    }
+
+    void getFinalPaths(bool draw)
+    {
+        List<Vector3[]> pathsForBois = som.getPathsForBois();
+        for (int j = 0; j < pathsForBois.Count; j++)
+        {
+            Vector3[] boiPath = vGraph.getPath(pathsForBois[j]);
+            bois[j].addPath(boiPath);
+            if (draw)
+                for (int i = 0; i < boiPath.Length - 1; i++)
+                  Debug.DrawLine(boiPath[i], boiPath[i + 1], som.getBoiColor(j), 10000f);
+        }
+    }
+
+    void removeInterestPoint(Vector3 pos)
+    {
+        foreach(Transform child in pointsBoundingObject.transform)
+        {
+            if ((child.position - pos).sqrMagnitude < 1f)
+            {
+                GameObject.Destroy(child.gameObject);
+                return;
+            } 
+        }
     }
 
 
@@ -129,11 +174,10 @@ public class MotherSales : MonoBehaviour {
             }
             hoodFixer++;
             som.update(hood);
-            som.drawState(drawTime);
         }
         
         som.calculateBoisVisitOrder();
-        
+        trained = true;  
     }
 
     void spawnObjects()
@@ -212,7 +256,7 @@ public class MotherSales : MonoBehaviour {
         vehicle.transform.position = position;
         vehicle.transform.forward = newOrientation;
         MotionModelSalesBoi mm = vehicle.AddComponent<MotionModelSalesBoi>();
-        mm.setParams(problem.vehicle_v_max, problem.vehicle_L, problem.vehicle_phi_max, problem.vehicle_a_max);
+        mm.setParams(problem.vehicle_v_max);
         return mm;
     }
 }

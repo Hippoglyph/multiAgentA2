@@ -46,6 +46,11 @@ public class SOM {
         }
     }
 
+    public Color getBoiColor(int index)
+    {
+        return colors[index];
+    }
+
     float getDistance(Vector3 point1, Vector3 point2)
     {
         return (point1 - point2).sqrMagnitude;

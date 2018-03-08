@@ -188,8 +188,11 @@ public class VisibilityGraph {
     public Vector3[] getPath(Vector3[] interestPoints)
     {
         List<Vector3> path = new List<Vector3>();
+        int[] indexes = new int[interestPoints.Length];
+        for (int i = 0; i < interestPoints.Length; i++)
+            indexes[i] = getIndex(interestPoints[i]);
         for (int i = 0; i < interestPoints.Length - 1; i++)
-            path.AddRange(AStar(getIndex(interestPoints[i]), getIndex(interestPoints[i + 1])));
+            path.AddRange(AStar(indexes[i], indexes[i+1]));
         return path.ToArray();
     }
 
