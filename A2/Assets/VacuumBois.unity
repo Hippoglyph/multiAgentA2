@@ -303,12 +303,12 @@ MonoBehaviour:
   pointsObject: {fileID: 100000, guid: b53fab1a8a71cf745ad1af6d16214489, type: 3}
   boisHeight: 0
   pointHeight: 0.4
-  speed: 2
+  speed: 5
   drawTime: 0.1
   epochs: 20
   waitTime: 1
   drawFinalPath: 0
-  simulate: 0
+  simulate: 1
 --- !u!1 &781865038
 GameObject:
   m_ObjectHideFlags: 0

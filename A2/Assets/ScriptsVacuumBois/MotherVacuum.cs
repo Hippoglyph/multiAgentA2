@@ -132,7 +132,7 @@ public class MotherVacuum : MonoBehaviour {
     {
         foreach(Transform child in pointsBoundingObject.transform)
         {
-            if ((child.position - pos).sqrMagnitude <= (scanningRadius * scanningRadius) +0.1 && !prim.collides(child.position,pos))
+            if ((child.position - pos).sqrMagnitude <= (scanningRadius * scanningRadius) +0.2 && !prim.collides(child.position,pos))
             {
                 GameObject.Destroy(child.gameObject);
             } 
