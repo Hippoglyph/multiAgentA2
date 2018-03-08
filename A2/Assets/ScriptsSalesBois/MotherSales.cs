@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -41,7 +42,7 @@ public class MotherSales : MonoBehaviour {
         interestings.AddRange(problem.goalPositions);
         interestings.AddRange(problem.startPositions);
         vGraph = new VisibilityGraph(problem.obstacles, interestings);
-        cooldown = waitTime; 
+        cooldown = waitTime;
     }
 
     float getDt()
@@ -55,7 +56,7 @@ public class MotherSales : MonoBehaviour {
     bool drawnFinalState = false;
     void Update ()
     {
-        if (cooldown > 0)
+        if (cooldown >= 0)
         {
             cooldown -= Time.deltaTime;
             return;

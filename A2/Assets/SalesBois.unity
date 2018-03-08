@@ -253,7 +253,7 @@ MonoBehaviour:
   speed: 3
   drawTime: 0.1
   epochs: 50
-  waitTime: 2
+  waitTime: 1
   drawFinalPath: 1
   simulate: 1
 --- !u!1 &1473357040
