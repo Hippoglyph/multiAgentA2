@@ -43,6 +43,8 @@ public class MotherSales : MonoBehaviour {
         interestings.AddRange(problem.startPositions);
         vGraph = new VisibilityGraph(problem.obstacles, interestings);
         cooldown = waitTime;
+        som.drawState(cooldown);
+        Debug.Break();
     }
 
     float getDt()

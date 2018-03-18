@@ -112,7 +112,7 @@ public class MotionModelSwedish : MonoBehaviour {
 
     public void calculateVelocity(List<MotionModelSwedish> neighbours, int myIndex, float time, float dt)
     {
-        float scanRadius = 5;
+        float scanRadius = 10;
         List<OrcaLine> orcalines = new List<OrcaLine>();
         for (int i = 0; i < neighbours.Count; i++)
         {

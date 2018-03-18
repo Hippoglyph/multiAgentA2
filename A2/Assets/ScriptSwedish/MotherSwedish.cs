@@ -63,7 +63,10 @@ public class MotherSwedish : MonoBehaviour {
 
 
         for (int i = 0; i < actors.Count; ++i)
+        {
             actors[i].moveTowards(getDt());
+            actors[i].drawVelocity();
+        }
     }
   
     void spawnObjects()
@@ -75,12 +78,12 @@ public class MotherSwedish : MonoBehaviour {
             spawnObject(problem.obstacles[i], "obstacle_"+i, boundingObject);
 
         //Spawn bois at start position
-        for (int i = 0; i<problem.startPositions.Count; i++)
-            actors.Add(spawnActor(problem.startPositions[i], "actor_" + i, Mathf.PI, i, problem.goalPositions[i]));
+        //for (int i = 0; i<problem.startPositions.Count; i++)
+        //    actors.Add(spawnActor(problem.startPositions[i], "actor_" + i, Mathf.PI, i, problem.goalPositions[i]));
 
         //JOUST
-        //actors.Add(spawnActor(problem.startPositions[0], "Arthur", Mathf.PI, 0, problem.startPositions[problem.startPositions.Count-1]));
-        //actors.Add(spawnActor(problem.startPositions[problem.startPositions.Count-1], "Maximillian", Mathf.PI, 1, problem.startPositions[0]));
+        actors.Add(spawnActor(problem.startPositions[0], "Arthur", Mathf.PI, 0, problem.startPositions[problem.startPositions.Count-1]));
+        actors.Add(spawnActor(problem.startPositions[problem.startPositions.Count-1], "Maximillian", Mathf.PI, 1, problem.startPositions[0]));
         //actors.Add(spawnActor(problem.startPositions[(problem.startPositions.Count-1)/2], "Arestoteles", Mathf.PI, 2, problem.goalPositions[(problem.startPositions.Count - 1) / 2]));
         //actors.Add(spawnActor(problem.goalPositions[(problem.startPositions.Count - 1) / 2], "Hans", Mathf.PI, 3, problem.startPositions[(problem.startPositions.Count - 1) / 2]));
 

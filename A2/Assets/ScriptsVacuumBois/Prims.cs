@@ -24,6 +24,8 @@ public class Prims  {
         }
     }
 
+  
+
     public List<float[]> getNewPointsOfInterest()
     {
         List<Vector3> bestPoints = new List<Vector3>();

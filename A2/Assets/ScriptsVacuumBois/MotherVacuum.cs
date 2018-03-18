@@ -46,11 +46,9 @@ public class MotherVacuum : MonoBehaviour {
         interestings.AddRange(problem.goalPositions);
         interestings.AddRange(problem.startPositions);
         cooldown = waitTime;
-
         vGraph = new VisibilityGraphVacuum(problem.obstacles, interestings);
-
-
-
+        drawRadius(cooldown, goodpoints);
+        Debug.Break();
     }
 
     float getDt()
@@ -268,5 +266,21 @@ public class MotherVacuum : MonoBehaviour {
         MotionModelVacuum mm = vehicle.AddComponent<MotionModelVacuum>();
         mm.setParams(problem.vehicle_v_max, radius);
         return mm;
+    }
+
+    public void drawRadius(float dt, List<float[]> points)
+    {
+        float res = 2 * Mathf.PI / 180;
+        for (int j = 0; j < points.Count; j++)
+        {
+            Vector3 pos = new Vector3(points[j][0], 0f, points[j][1]);
+            for (float i = 0; i < 2 * Mathf.PI; i += res)
+            {
+                Vector3 from = pos + new Vector3(scanningRadius * Mathf.Cos(i), 0, scanningRadius * Mathf.Sin(i));
+                Vector3 to = pos + new Vector3(scanningRadius * Mathf.Cos(i + res), 0, scanningRadius * Mathf.Sin(i + res));
+                Debug.DrawLine(from, to, Color.red, dt);
+            }
+        }
+
     }
 }
