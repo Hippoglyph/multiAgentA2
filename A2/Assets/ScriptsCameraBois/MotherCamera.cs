@@ -194,7 +194,7 @@ public class MotherCamera : MonoBehaviour {
         for (int i = 0; i < problem.obstacles.Count; i++)
             spawnObject(problem.obstacles[i], "obstacle_" + i, boundingObject);
 
-        scanningRadius = (boundingMaxX - boundingMinX) * (boundingMaxZ - boundingMinZ);
+        scanningRadius = Mathf.Max((boundingMaxX - boundingMinX), (boundingMaxZ - boundingMinZ));
         //Spawn vehicles at start position
         for (int i = 0; i<problem.startPositions.Count; i++)
             bois.Add(spawnBoi(problem.startPositions[i], "boi_" + i, Mathf.PI, scanningRadius));
